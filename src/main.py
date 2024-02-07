@@ -2,6 +2,8 @@ import asyncio
 import websockets
 import json
 import jwt
+import re
+import time
 
 from api.GetStateOrder import get_state_order
 
@@ -25,15 +27,46 @@ async def handle_websocket(websocket, path):
 
             response = get_state_order(token, id_client)
 
-            response_json = json.dumps(response)
+            response_to_str = json.dumps(response)
 
-            await websocket.send(response_json)
+            pattern = r'"order_state"\s*:\s*(\d+)'
 
-            print(f"[+] Sent response to client: {response_json}")
+            # Search for the pattern in the JSON string
+            match = re.search(pattern, response_to_str)
+
+            if match:
+                # Extract the value associated with the "order_state" key
+                order_state_value = match.group(1)
+
+                await websocket.send(order_state_value)
+
+                print(f"[+] First response to the client: {order_state_value}")
+
+                new_state_value = order_state_value
+
+                while True:
+                    time.sleep(10)
+
+                    new_response = get_state_order(token, id_client)
+
+                    new_response_to_str = json.dumps(new_response)
+
+                    new_match = re.search(pattern, new_response_to_str)
+
+                    new_state_value = new_match.group(1)
+
+                    if new_state_value == order_state_value:
+                        pass
+                    else:
+                        await asyncio.create_task(websocket.send(new_state_value))
+                        order_state_value = new_state_value
+            else:
+                await websocket.send(json.dumps({"error": "No order state found"}))
     except websockets.exceptions.ConnectionClosedError as e:
         print("[-] Client disconnected")
     except Exception as e:
         print(f"[-] Error: {e}")
+
 
 def main():
     port = 8765
@@ -46,6 +79,7 @@ def main():
     print(f"[+] Running at ws://localhost:8765")
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()
+
 
 if __name__ == "__main__":
     main()

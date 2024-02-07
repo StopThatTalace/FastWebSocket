@@ -18,8 +18,6 @@ def get_state_order(token, id_client):
 
     response = requests.post(url, headers=headers, data=json_data)
 
-    print(url, headers, json_data)
-
     # Checking if the request was successful (status code 200)
     if response.status_code == 200:
         return response.json()
