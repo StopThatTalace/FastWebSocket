@@ -29,18 +29,18 @@ async def handle_websocket(websocket, path):
 
             response_to_str = json.dumps(response)
 
-            pattern = r'"order_state"\s*:\s*(\d+)'
+            pattern_state_value = r'"order_state"\s*:\s*(\d+)'
 
-            # Search for the pattern in the JSON string
-            match = re.search(pattern, response_to_str)
+            # Search for the pattern_order_value in the JSON string
+            match = re.search(pattern_state_value, response_to_str)
 
             if match:
                 # Extract the value associated with the "order_state" key
                 order_state_value = match.group(1)
 
-                await websocket.send(order_state_value)
+                await websocket.send(response_to_str)
 
-                print(f"[+] First response to the client: {order_state_value}")
+                print(f"[+] First response to the client: {response_to_str}")
 
                 new_state_value = order_state_value
 
@@ -51,14 +51,14 @@ async def handle_websocket(websocket, path):
 
                     new_response_to_str = json.dumps(new_response)
 
-                    new_match = re.search(pattern, new_response_to_str)
+                    new_match = re.search(pattern_state_value, new_response_to_str)
 
                     new_state_value = new_match.group(1)
 
                     if new_state_value == order_state_value:
                         pass
                     else:
-                        await asyncio.create_task(websocket.send(new_state_value))
+                        await asyncio.create_task(websocket.send(new_response_to_str))
                         order_state_value = new_state_value
             else:
                 await websocket.send(json.dumps({"error": "No order state found"}))
