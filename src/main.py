@@ -5,7 +5,7 @@ import jwt
 import re
 import time
 
-from src.api.GetStateOrder import get_state_order
+from GetStateOrder import get_state_order
 
 
 async def handle_websocket(websocket, path):

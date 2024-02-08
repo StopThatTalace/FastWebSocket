@@ -1,7 +1,7 @@
 import requests
 import json
 
-from src.conf.config import Config
+from config import Config
 
 
 def get_state_order(token, id_client):
