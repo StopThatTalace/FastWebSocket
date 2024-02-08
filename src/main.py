@@ -45,7 +45,7 @@ async def handle_websocket(websocket, path):
                 new_state_value = order_state_value
 
                 while True:
-                    time.sleep(10)
+                    time.sleep(2)
 
                     new_response = get_state_order(token, id_client)
 
@@ -56,6 +56,7 @@ async def handle_websocket(websocket, path):
                     new_state_value = new_match.group(1)
 
                     if new_state_value == order_state_value:
+                        await asyncio.create_task(websocket.send(new_response_to_str))
                         pass
                     else:
                         await asyncio.create_task(websocket.send(new_response_to_str))
@@ -63,8 +64,10 @@ async def handle_websocket(websocket, path):
             else:
                 await websocket.send(json.dumps({"error": "No order state found"}))
     except websockets.exceptions.ConnectionClosedError as e:
+        await websocket.close()
         print("[-] Client disconnected")
     except Exception as e:
+        await websocket.close()
         print(f"[-] Error: {e}")
 
 
