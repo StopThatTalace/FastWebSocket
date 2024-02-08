@@ -72,7 +72,7 @@ def main():
     port = 8765
 
     # Create a WebSocket server
-    start_server = websockets.serve(handle_websocket, "localhost", port)
+    start_server = websockets.serve(handle_websocket, "0.0.0.0", port)
 
     # Start the server
     print(f"[+] Currently on port {port}")
