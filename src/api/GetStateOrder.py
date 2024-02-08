@@ -1,12 +1,12 @@
 import requests
 import json
 
-from src.config import config
+from src.conf.config import Config
 
 
 def get_state_order(token, id_client):
 
-    url = f"{config.Config.base_url}/order/state"
+    url = f"{Config.base_url}/order/state"
     headers = {
         "Authorization": f"Bearer {token}",
         "accept": "application/json",
